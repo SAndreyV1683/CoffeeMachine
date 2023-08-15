@@ -1,15 +1,12 @@
 import java.util.*
 
-fun main(args: Array<String>) {
+fun main() {
     CoffeeMachine().start()
 }
 
 
-class CoffeeMachine {
+class CoffeeMachine : MakeCoffee() {
     private var scanner = Scanner(System.`in`)
-    var water = 0
-    var milk = 0
-    var beans = 0
     private var command = ""
 
     fun start() {
@@ -55,21 +52,20 @@ class CoffeeMachine {
         val command = scanner.nextLine()
         when (command.lowercase()) {
             CoffeeRecipes.AMERICANO.coffeeName -> {
-                CoffeeRecipes.AMERICANO.make(this)
+                make(CoffeeRecipes.AMERICANO.coffeeName, water = CoffeeRecipes.AMERICANO.w, beans = CoffeeRecipes.AMERICANO.b)
             }
             CoffeeRecipes.ESPRESSO.coffeeName -> {
-                CoffeeRecipes.ESPRESSO.make(this)
+                make(CoffeeRecipes.ESPRESSO.coffeeName, water = CoffeeRecipes.ESPRESSO.w, beans = CoffeeRecipes.ESPRESSO.b)
             }
             CoffeeRecipes.CAPPUCCINO.coffeeName -> {
-                CoffeeRecipes.CAPPUCCINO.make(this)
+                make(CoffeeRecipes.CAPPUCCINO.coffeeName, water = CoffeeRecipes.CAPPUCCINO.w, beans = CoffeeRecipes.CAPPUCCINO.b, milk = CoffeeRecipes.CAPPUCCINO.m)
             }
             CoffeeRecipes.LATTE.coffeeName -> {
-                CoffeeRecipes.LATTE.make(this)
+                make(CoffeeRecipes.LATTE.coffeeName, water = CoffeeRecipes.LATTE.w, beans = CoffeeRecipes.LATTE.b, milk = CoffeeRecipes.LATTE.m)
             } "назад" -> Unit
             else -> {
                 println("Рецепт не найден!")
             }
-
         }
     }
 
@@ -80,83 +76,34 @@ class CoffeeMachine {
 
 }
 
-interface MakeCoffee {
-    fun make(coffeeMachine: CoffeeMachine)
+abstract class MakeCoffee {
+    var water = 0
+    var milk = 0
+    var beans = 0
+
+    fun make (coffeeName: String, water: Int = 0, milk: Int = 0,  beans: Int = 0) {
+        if (this.water >= water && this.beans >= beans && this.milk >= milk) {
+            this.water -= water
+            this.beans -= beans
+            this.milk -= milk
+            println("$coffeeName готов")
+        } else {
+            if (this.water < water) {
+                println("Недостаточно воды!")
+            } else if (this.beans < beans) {
+                println("Недостаточно кофе!")
+            } else if (this.milk < milk) {
+                println("Недостаточно молока!")
+            }
+        }
+    }
 }
 
-enum class CoffeeRecipes (val coffeeName: String, var water: Int = 0, var milk: Int = 0, var beans: Int = 0): MakeCoffee{
-    ESPRESSO("эспрессо", water = 60, beans = 10) {
-        override fun make(coffeeMachine: CoffeeMachine) {
-            if (coffeeMachine.water >= ESPRESSO.water && coffeeMachine.beans >= ESPRESSO.beans) {
-                coffeeMachine.water -= ESPRESSO.water
-                coffeeMachine.beans -= ESPRESSO.beans
-                println("${ESPRESSO.coffeeName} готов")
-            } else {
-                if (coffeeMachine.water < ESPRESSO.water) {
-                    println("Недостаточно воды!")
-                }
-                if (coffeeMachine.beans < ESPRESSO.beans) {
-                    println("Недостаточно кофе!")
-                }
-            }
-        }
-    },
-    AMERICANO("американо", water = 120, beans = 10) {
-        override fun make(coffeeMachine: CoffeeMachine) {
-            if (coffeeMachine.water >= AMERICANO.water && coffeeMachine.beans >= AMERICANO.beans) {
-                coffeeMachine.water -= AMERICANO.water
-                coffeeMachine.beans -= AMERICANO.beans
-                println("${AMERICANO.coffeeName} готов")
-            } else {
-                if (coffeeMachine.water < AMERICANO.water) {
-                    println("Недостаточно воды!")
-                }
-                if (coffeeMachine.beans < AMERICANO.beans) {
-                    println("Недостаточно кофе!")
-                }
-            }
-        }
-    },
-    CAPPUCCINO("капучино", water = 120, milk = 60, beans = 20) {
-        override fun make(coffeeMachine: CoffeeMachine) {
-            if (coffeeMachine.water >= CAPPUCCINO.water && coffeeMachine.beans >= CAPPUCCINO.beans && coffeeMachine.milk >= CAPPUCCINO.milk) {
-                coffeeMachine.water -= CAPPUCCINO.water
-                coffeeMachine.beans -= CAPPUCCINO.beans
-                coffeeMachine.milk -= CAPPUCCINO.milk
-                println("${CAPPUCCINO.coffeeName} готов")
-            } else {
-                if (coffeeMachine.water < CAPPUCCINO.water) {
-                    println("Недостаточно воды!")
-                }
-                if (coffeeMachine.beans < CAPPUCCINO.beans) {
-                    println("Недостаточно кофе!")
-                }
-                if (coffeeMachine.milk < CAPPUCCINO.milk) {
-                    println("Недостаточно молока!")
-                }
-            }
-        }
-    },
-    LATTE("латте", water = 240, beans = 20, milk = 120) {
-        override fun make(coffeeMachine: CoffeeMachine) {
-            if (coffeeMachine.water >= LATTE.water && coffeeMachine.beans >= LATTE.beans && coffeeMachine.milk >= LATTE.milk) {
-                coffeeMachine.water -= LATTE.water
-                coffeeMachine.beans -= LATTE.beans
-                coffeeMachine.milk -= LATTE.milk
-                println("${LATTE.coffeeName} готов")
-            } else {
-                if (coffeeMachine.water < LATTE.water) {
-                    println("Недостаточно воды!")
-                }
-                if (coffeeMachine.beans < LATTE.beans) {
-                    println("Недостаточно кофе!")
-                }
-                if (coffeeMachine.milk < LATTE.milk) {
-                    println("Недостаточно молока!")
-                }
-            }
-        }
-    };
+enum class CoffeeRecipes (val coffeeName: String, var w: Int = 0, var m: Int = 0, var b: Int = 0) {
+    ESPRESSO("эспрессо", w = 60, b = 10),
+    AMERICANO("американо", w = 120, b = 10),
+    CAPPUCCINO("капучино", w = 120, m = 60, b = 20),
+    LATTE("латте", w = 240, b = 20, m = 120);
 }
 
 
